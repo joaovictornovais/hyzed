@@ -1,7 +1,15 @@
-import { AtSymbolIcon, LockClosedIcon } from "@heroicons/react/16/solid";
-import React from "react";
+import React, { useContext, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { AuthContext } from "../contexts/AuthContext";
 
 const Login = () => {
+  const { register, handleSubmit } = useForm();
+  const { signIn } = useContext(AuthContext);
+
+  const handleLogin = async (data) => {
+    await signIn(data);
+  };
+
   return (
     <section className="h-screen flex justify-center items-center bg-gray-100">
       <div className="space-y-4 p-4 min-w-[340px]">
@@ -13,12 +21,16 @@ const Login = () => {
         <h2 className="text-2xl font-semibold text-gray-800 text-center">
           Faça Login
         </h2>
-        <form className="text-sm space-y-2">
+        <form
+          className="text-sm space-y-2"
+          onSubmit={handleSubmit(handleLogin)}
+        >
           <div className="shadow-sm">
             <label htmlFor="email" className="sr-only">
               E-mail
             </label>
             <input
+              {...register("email")}
               id="email"
               name="email"
               className="p-2 rounded-md w-full"
@@ -32,6 +44,7 @@ const Login = () => {
               Password
             </label>
             <input
+              {...register("password")}
               id="password"
               name="password"
               type="password"
@@ -55,7 +68,10 @@ const Login = () => {
             </div>
           </div>
           <div>
-            <button className="w-full bg-blue-900 p-2 rounded-md text-white hover:bg-blue-800 hover:text-zinc-100">
+            <button
+              type="submit"
+              className="w-full bg-blue-900 p-2 rounded-md text-white hover:bg-blue-800 hover:text-zinc-100"
+            >
               Login
             </button>
           </div>
