@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import { Link } from "react-router-dom";
 
 const ProductMinInfo = ({ name, price, images, sizes }) => {
   const allSizes = ["P", "M", "G", "GG"];
@@ -21,16 +22,18 @@ const ProductMinInfo = ({ name, price, images, sizes }) => {
   return (
     <div className="max-w-[300px]">
       <div className="group">
-        <img
-          src={images[0].url}
-          alt="Imagem do produto"
-          className="group-hover:hidden cursor-pointer"
-        />
-        <img
-          src={images[1].url}
-          alt="Imagem do produto"
-          className="hidden group-hover:inline cursor-pointer"
-        />
+        <Link to={`/produtos/${nameWithoutSpaces}`}>
+          <img
+            src={images[0].url}
+            alt="Imagem do produto"
+            className="group-hover:hidden cursor-pointer"
+          />
+          <img
+            src={images[1].url}
+            alt="Imagem do produto"
+            className="hidden group-hover:inline cursor-pointer"
+          />
+        </Link>
         <div className="mt-2 flex flex-col gap-1 text-xs">
           <a
             href={`/produtos/${nameWithoutSpaces}`}

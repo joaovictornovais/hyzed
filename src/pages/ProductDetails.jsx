@@ -69,7 +69,7 @@ const ProductDetails = () => {
                   </div>
                   <div className="w-full h-[1px] bg-gray-200" />
                   <div className="text-xs text-gray-700 font-medium">
-                    <p>Frete grátis para compras acima de $150.00</p>
+                    <p>Frete grátis para compras acima de $150</p>
                   </div>
                   <div className="w-full h-[1px] bg-gray-200" />
                 </div>
