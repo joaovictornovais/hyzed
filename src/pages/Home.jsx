@@ -1,18 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import ProductMinInfo from "../components/ProductMinInfo";
-import { api } from "../services/api";
 
-const Home = () => {
-  const [products, setProducts] = useState([]);
-
-  const loadProducts = async () => {
-    await api.get("/products").then((res) => setProducts(res.data));
-  };
-
-  useEffect(() => {
-    loadProducts();
-  }, []);
-
+const Home = ({ products }) => {
   return (
     <main className="bg-gray-50 h-screen">
       <div className="p-4">

@@ -1,8 +1,9 @@
 import React, { useEffect } from "react";
 
 const ProductMinInfo = ({ name, price, images, sizes }) => {
-  const allSizes = ["P", "M", "G", "GG", "GGG"];
+  const allSizes = ["P", "M", "G", "GG"];
   const availableSizes = [];
+  const nameWithoutSpaces = name.replace(/ /g, "-").toLowerCase();
 
   const handleAvailableSizes = () => {
     sizes.map((item) => {
@@ -32,7 +33,7 @@ const ProductMinInfo = ({ name, price, images, sizes }) => {
         />
         <div className="mt-2 flex flex-col gap-1 text-xs">
           <a
-            href="#"
+            href={`/produtos/${nameWithoutSpaces}`}
             className="uppercase font-semibold text-gray-800 cursor-pointer"
           >
             {name}
@@ -49,7 +50,7 @@ const ProductMinInfo = ({ name, price, images, sizes }) => {
           <div className="flex gap-4 mt-1">
             {allSizes.map((size, idx) => (
               <a
-                href="#"
+                href={`/produtos/${nameWithoutSpaces}`}
                 key={idx}
                 className={
                   availableSizes.indexOf(size) === -1
