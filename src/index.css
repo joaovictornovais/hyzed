@@ -5,3 +5,7 @@
 * {
   @apply font-['Inter'];
 }
+
+.form-section {
+  @apply h-screen flex justify-center items-center bg-gray-100;
+}

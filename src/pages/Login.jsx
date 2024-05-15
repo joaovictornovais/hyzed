@@ -11,7 +11,7 @@ const Login = () => {
   };
 
   return (
-    <section className="h-screen flex justify-center items-center bg-gray-100">
+    <section className="form-section">
       <div className="space-y-4 p-4 min-w-[340px]">
         <img
           src="/logo.png"
@@ -67,17 +67,15 @@ const Login = () => {
               </a>
             </div>
           </div>
-          <div>
-            <button
-              type="submit"
-              className="w-full bg-blue-900 p-2 rounded-md text-white hover:bg-blue-800 hover:text-zinc-100"
-            >
-              Login
-            </button>
+          <div className="w-full mt-4 text-center bg-blue-900 p-2 text-white text-sm rounded-md cursor-pointer hover:bg-indigo-900 transition-colors">
+            <button type="submit">Login</button>
           </div>
-          <div className="text-center">
-            <a className="cursor-pointer hover:underline" href="#">
-              Criar conta
+          <div className="text-center mt-2">
+            <a
+              href="/registrar"
+              className="text-xs hover:underline text-gray-800"
+            >
+              Novo por aqui? Crie uma conta
             </a>
           </div>
         </form>
