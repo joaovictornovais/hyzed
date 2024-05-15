@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
 
 const ProductMinInfo = ({ name, price, images, sizes }) => {
@@ -53,7 +53,7 @@ const ProductMinInfo = ({ name, price, images, sizes }) => {
           <div className="flex gap-4 mt-1">
             {allSizes.map((size, idx) => (
               <a
-                href={`/produtos/${nameWithoutSpaces}`}
+                href={`/produtos/${nameWithoutSpaces}?size=${size}`}
                 key={idx}
                 className={
                   availableSizes.indexOf(size) === -1

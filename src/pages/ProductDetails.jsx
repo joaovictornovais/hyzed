@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { api } from "../services/api";
+import useQuery from "../hooks/QuerySearch";
 
 const ProductDetails = () => {
   const { nome } = useParams();
   const [product, setProduct] = useState();
+  let query = useQuery();
+  const navigate = useNavigate();
 
   let sizes = ["P", "M", "G", "GG"];
 
@@ -16,6 +19,11 @@ const ProductDetails = () => {
     } catch (error) {
       console.error("Erro ao carregar o produto:", error);
     }
+  };
+
+  const handleSize = (size) => {
+    query.set("size", size);
+    navigate(`?${query.toString()}`, { replace: true });
   };
 
   useEffect(() => {
@@ -62,7 +70,15 @@ const ProductDetails = () => {
                   <div className="w-full h-[1px] bg-gray-200" />
                   <div className="text-xs text-gray-400 font-medium">
                     {sizes.map((size, idx) => (
-                      <label key={idx} className="mr-6 cursor-pointer">
+                      <label
+                        key={idx}
+                        onClick={() => handleSize(size)}
+                        className={
+                          query.get("size") === size
+                            ? "mr-4 text-gray-800 font-bold underline cursor-pointer"
+                            : "mr-4 text-gray-600 font-medium cursor-pointer"
+                        }
+                      >
                         {size}
                       </label>
                     ))}
