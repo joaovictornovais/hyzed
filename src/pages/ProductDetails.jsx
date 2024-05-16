@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { api } from "../services/api";
 import useQuery from "../hooks/QuerySearch";
 
@@ -123,16 +123,17 @@ const ProductDetails = () => {
                     ? "Produto Indisponível"
                     : "Tamanho indisponível"}
                 </button>
-                <button
+                <Link
+                  to="/checkout"
                   className={
                     query.get("size") === null ||
                     !availableSizes.includes(query.get("size"))
                       ? "hidden"
-                      : "uppercase hover:bg-gray-500 hover:border-gray-500 hover:text-zinc-100 transition-colors bg-white-900 border-black border-2 text-xs py-3 p-2 rounded-sm text-black font-bold"
+                      : "uppercase text-center hover:bg-gray-500 hover:border-gray-500 hover:text-zinc-100 transition-colors bg-white-900 border-black border-2 text-xs py-3 p-2 rounded-sm text-black font-bold"
                   }
                 >
                   Comprar agora
-                </button>
+                </Link>
               </div>
             </div>
           </div>

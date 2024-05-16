@@ -6,6 +6,7 @@ import Register from "./pages/Register";
 import Home from "./pages/Home";
 import ProductDetails from "./pages/ProductDetails";
 import { api } from "./services/api";
+import Checkout from "./pages/Checkout";
 
 const App = () => {
   const [products, setProducts] = useState([]);
@@ -30,6 +31,7 @@ const App = () => {
               path="/produtos/:nome"
               element={<ProductDetails products={products} />}
             />
+            <Route path="/checkout" element={<Checkout />} />
           </Routes>
         </AuthProvider>
       </BrowserRouter>
