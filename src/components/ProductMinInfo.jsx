@@ -24,12 +24,20 @@ const ProductMinInfo = ({ name, price, images, sizes }) => {
       <div className="group">
         <Link to={`/produtos/${nameWithoutSpaces}`}>
           <img
-            src={images[0].url}
+            src={
+              images[0].url === null
+                ? "/unavailable-product-image.png"
+                : images[0].url
+            }
             alt="Imagem do produto"
             className="group-hover:hidden cursor-pointer"
           />
           <img
-            src={images[1].url}
+            src={
+              images[1].url === null
+                ? "/unavailable-product-image.png"
+                : images[1].url
+            }
             alt="Imagem do produto"
             className="hidden group-hover:inline cursor-pointer"
           />

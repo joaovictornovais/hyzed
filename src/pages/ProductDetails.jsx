@@ -53,8 +53,8 @@ const ProductDetails = () => {
             <div className="inline md:hidden">
               <img src={product.images[0].url} alt="Foto do produto" />
             </div>
-            <div className="md:fixed right-0 top-0 h-full overflow-y-auto w-full md:w-1/2 p-2">
-              <div className="md:p-[4rem] p-2 xl:p-[8rem]">
+            <div className="md:fixed right-0 h-screen w-1/2 flex flex-col justify-between p-6">
+              <div className="p-6">
                 <div className="flex flex-col gap-4">
                   <div>
                     <h1 className="uppercase text-gray-900 font-bold">
