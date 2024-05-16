@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { api } from "../services/api";
 import useQuery from "../hooks/QuerySearch";
 
-const ProductDetails = () => {
+const ProductDetails = ({ cart, setCart }) => {
   const { nome } = useParams();
   const [product, setProduct] = useState();
   const [availableSizes, setAvailableSizes] = useState([]);
@@ -36,6 +36,18 @@ const ProductDetails = () => {
     navigate(`?${query.toString()}`, { replace: true });
   };
 
+  const handleCart = () => {
+    if (availableSizes.includes(query.get("size"))) {
+      const productDTO = {
+        productId: product.id,
+        size: query.get("size"),
+        quantity: 1,
+      };
+      const newCart = [...cart, productDTO];
+      setCart(newCart);
+    }
+  };
+
   useEffect(() => {
     loadProduct();
   }, []);
@@ -53,7 +65,7 @@ const ProductDetails = () => {
             <div className="inline md:hidden">
               <img src={product.images[0].url} alt="Foto do produto" />
             </div>
-            <div className="md:fixed right-0 h-screen w-1/2 flex flex-col justify-between p-6">
+            <div className="md:fixed right-0 h-screen w-full md:w-1/2 flex flex-col justify-between p-6">
               <div className="p-6">
                 <div className="flex flex-col gap-4">
                   <div>
@@ -114,7 +126,10 @@ const ProductDetails = () => {
                     : "grid grid-cols-2 gap-4"
                 }
               >
-                <button className="uppercase hover:bg-gray-500 hover:border-gray-500 hover:text-zinc-100 transition-colors bg-black border-invisible text-xs py-3 p-2 rounded-sm text-white font-bold">
+                <button
+                  onClick={() => handleCart()}
+                  className="uppercase hover:bg-gray-500 hover:border-gray-500 hover:text-zinc-100 transition-colors bg-black border-invisible text-xs py-3 p-2 rounded-sm text-white font-bold"
+                >
                   {query.get("size") === null
                     ? "Selecione um tamanho"
                     : availableSizes.includes(query.get("size"))

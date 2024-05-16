@@ -10,6 +10,7 @@ import Checkout from "./pages/Checkout";
 
 const App = () => {
   const [products, setProducts] = useState([]);
+  const [cart, setCart] = useState([]);
 
   const loadProducts = async () => {
     await api.get("/products").then((res) => setProducts(res.data));
@@ -29,9 +30,19 @@ const App = () => {
             <Route path="/registrar" element={<Register />} />
             <Route
               path="/produtos/:nome"
-              element={<ProductDetails products={products} />}
+              element={
+                <ProductDetails
+                  products={products}
+                  cart={cart}
+                  setCart={setCart}
+                />
+              }
             />
-            <Route path="/checkout" element={<Checkout />} />
+            <Route
+              path="/checkout"
+              element={<Checkout cart={cart} />}
+              cart={cart}
+            />
           </Routes>
         </AuthProvider>
       </BrowserRouter>
