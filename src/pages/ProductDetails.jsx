@@ -119,6 +119,8 @@ const ProductDetails = () => {
                     ? "Selecione um tamanho"
                     : availableSizes.includes(query.get("size"))
                     ? "Adicionar ao carrinho"
+                    : availableSizes.length === 0
+                    ? "Produto Indisponível"
                     : "Tamanho indisponível"}
                 </button>
                 <button
