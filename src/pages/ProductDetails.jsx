@@ -6,6 +6,7 @@ import useQuery from "../hooks/QuerySearch";
 const ProductDetails = () => {
   const { nome } = useParams();
   const [product, setProduct] = useState();
+  const [availableSizes, setAvailableSizes] = useState([]);
   let query = useQuery();
   const navigate = useNavigate();
 
@@ -14,11 +15,20 @@ const ProductDetails = () => {
   const loadProduct = async () => {
     const nameWithSpaces = nome.replace(/-/g, " ");
     try {
-      const response = await api.get(`/products?name=${nameWithSpaces}`);
-      setProduct(response.data);
+      await api.get(`/products?name=${nameWithSpaces}`).then((res) => {
+        setProduct(res.data);
+        handleAvailableSizes(res.data.sizes);
+      });
     } catch (error) {
       console.error("Erro ao carregar o produto:", error);
     }
+  };
+
+  const handleAvailableSizes = (sizes) => {
+    const available = sizes
+      .filter((item) => item.quantity > 0)
+      .map((item) => item.size);
+    setAvailableSizes(available);
   };
 
   const handleSize = (size) => {
@@ -68,15 +78,21 @@ const ProductDetails = () => {
                     />
                   </div>
                   <div className="w-full h-[1px] bg-gray-200" />
-                  <div className="text-xs text-gray-400 font-medium">
+                  <div className="text-xs text-gray-400 font-semibold">
                     {sizes.map((size, idx) => (
                       <label
                         key={idx}
                         onClick={() => handleSize(size)}
                         className={
-                          query.get("size") === size
-                            ? "mr-4 text-gray-800 font-bold underline cursor-pointer"
-                            : "mr-4 text-gray-600 font-medium cursor-pointer"
+                          query.get("size") === size &&
+                          availableSizes.includes(size)
+                            ? "mr-2 text-gray-800 cursor-pointer underline"
+                            : query.get("size") === size &&
+                              !availableSizes.includes(size)
+                            ? "mr-2 text-gray-300 cursor-not-allowed underline"
+                            : availableSizes.includes(size)
+                            ? "mr-2 text-gray-800 cursor-pointer"
+                            : "mr-2 text-gray-300 cursor-not-allowed"
                         }
                       >
                         {size}
@@ -90,11 +106,29 @@ const ProductDetails = () => {
                   <div className="w-full h-[1px] bg-gray-200" />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div
+                className={
+                  query.get("size") === null ||
+                  !availableSizes.includes(query.get("size"))
+                    ? "grid grid-cols-1"
+                    : "grid grid-cols-2 gap-4"
+                }
+              >
                 <button className="uppercase hover:bg-gray-500 hover:border-gray-500 hover:text-zinc-100 transition-colors bg-black border-invisible text-xs py-3 p-2 rounded-sm text-white font-bold">
-                  Adicionar ao carrinho
+                  {query.get("size") === null
+                    ? "Selecione um tamanho"
+                    : availableSizes.includes(query.get("size"))
+                    ? "Adicionar ao carrinho"
+                    : "Tamanho indisponível"}
                 </button>
-                <button className="uppercase hover:bg-gray-500 hover:border-gray-500 hover:text-zinc-100 transition-colors bg-white-900 border-black border-2 text-xs py-3 p-2 rounded-sm text-black font-bold">
+                <button
+                  className={
+                    query.get("size") === null ||
+                    !availableSizes.includes(query.get("size"))
+                      ? "hidden"
+                      : "uppercase hover:bg-gray-500 hover:border-gray-500 hover:text-zinc-100 transition-colors bg-white-900 border-black border-2 text-xs py-3 p-2 rounded-sm text-black font-bold"
+                  }
+                >
                   Comprar agora
                 </button>
               </div>
