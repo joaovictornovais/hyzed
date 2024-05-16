@@ -2,6 +2,9 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { api } from "../services/api";
 import useQuery from "../hooks/QuerySearch";
+import { ToastContainer, toast } from "react-toastify";
+
+import "react-toastify/dist/ReactToastify.css";
 
 const ProductDetails = ({ cart, setCart }) => {
   const { nome } = useParams();
@@ -45,6 +48,16 @@ const ProductDetails = ({ cart, setCart }) => {
       };
       const newCart = [...cart, productDTO];
       setCart(newCart);
+
+      toast.success("Produto adicionado ao carrinho com sucesso!", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
     }
   };
 
@@ -152,6 +165,7 @@ const ProductDetails = ({ cart, setCart }) => {
               </div>
             </div>
           </div>
+          <ToastContainer />
         </div>
       )}
     </section>
