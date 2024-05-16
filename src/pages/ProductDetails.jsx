@@ -3,10 +3,11 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { api } from "../services/api";
 import useQuery from "../hooks/QuerySearch";
 import { ToastContainer, toast } from "react-toastify";
+import Cookies from "js-cookie";
 
 import "react-toastify/dist/ReactToastify.css";
 
-const ProductDetails = ({ cart, setCart }) => {
+const ProductDetails = () => {
   const { nome } = useParams();
   const [product, setProduct] = useState();
   const [availableSizes, setAvailableSizes] = useState([]);
@@ -46,8 +47,16 @@ const ProductDetails = ({ cart, setCart }) => {
         size: query.get("size"),
         quantity: 1,
       };
-      const newCart = [...cart, productDTO];
-      setCart(newCart);
+
+      if (Cookies.get("cart")) {
+        const objCart = JSON.parse(Cookies.get("cart"));
+        const newCart = [...objCart, productDTO];
+
+        Cookies.set("cart", JSON.stringify(newCart));
+      } else {
+        const cart = `[${JSON.stringify(productDTO)}]`;
+        Cookies.set("cart", cart);
+      }
 
       toast.success("Produto adicionado ao carrinho com sucesso!", {
         position: "top-right",

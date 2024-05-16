@@ -1,15 +1,22 @@
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { Link } from "react-router-dom";
-import { api } from "../services/api";
+import { Link, useNavigate } from "react-router-dom";
+import Cookies from "js-cookie";
 
-const Checkout = ({ cart }) => {
+const Checkout = () => {
   const { register, handleSubmit } = useForm();
-  const [products, setProducts] = useState();
 
   const handlePayment = (data) => {
     console.log(data);
   };
+
+  const handleCart = () => {
+    if (Cookies.get("cart") === undefined) window.location = "/";
+  };
+
+  useEffect(() => {
+    handleCart();
+  }, []);
 
   return (
     <section className="bg-gray-100 h-full">
