@@ -1,22 +1,101 @@
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Cookies from "js-cookie";
+import { api } from "../services/api";
+import { toast, ToastContainer } from "react-toastify";
 
 const Checkout = () => {
   const { register, handleSubmit } = useForm();
+  const [products, setProducts] = useState([]);
+  const [subtotal, setSubtotal] = useState(null);
+  const [total, setTotal] = useState(0);
+  const [shipping, setShipping] = useState(8);
+  const [promo, setPromo] = useState(0);
 
   const handlePayment = (data) => {
     console.log(data);
   };
 
-  const handleCart = () => {
-    if (Cookies.get("cart") === undefined) window.location = "/";
+  const handleCart = async () => {
+    if (
+      Cookies.get("cart") === undefined ||
+      Cookies.get("cart") === "" ||
+      Cookies.get("cart") === "[]"
+    )
+      window.location = "/";
+    const cartObj = JSON.parse(Cookies.get("cart"));
+
+    const productPromises = cartObj.map(async (item) => {
+      const res = await api.get(`/products/${item.productId}`);
+      return {
+        product: res.data,
+        size: item.size,
+        quantity: item.quantity,
+      };
+    });
+
+    const newProducts = await Promise.all(productPromises);
+    setProducts(newProducts);
+
+    const subtotalValue = newProducts.reduce((acc, item) => {
+      return acc + item.quantity * parseFloat(item.product.price);
+    }, 0);
+
+    setSubtotal(subtotalValue);
+    setTotal(subtotalValue + shipping - promo);
+  };
+
+  const addQuantity = (item) => {
+    const cartCookies = JSON.parse(Cookies.get("cart"));
+    cartCookies.map((prod) => {
+      if (prod.productId === item.product.id && prod.size === item.size) {
+        const size = item.product.sizes.find((sz) => sz.size === item.size);
+        if (size.quantity > prod.quantity) prod.quantity += 1;
+        else
+          toast.error("Você atingiu o máximo de unidades por produto"),
+            {
+              position: "top-right",
+              autoClose: 5000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+            };
+      }
+    });
+    Cookies.set("cart", JSON.stringify(cartCookies));
+  };
+
+  const removeQuantity = (item) => {
+    const cartCookies = JSON.parse(Cookies.get("cart"));
+    cartCookies.map((prod) => {
+      if (prod.productId === item.product.id && prod.size === item.size) {
+        if (prod.quantity > 1) prod.quantity -= 1;
+        else cartCookies.pop(prod);
+      }
+    });
+    Cookies.set("cart", JSON.stringify(cartCookies));
+  };
+
+  const handlePromo = () => {
+    setPromo(subtotal * 0.05);
+    toast.success("Cupom de 5% de desconto adicionado com sucesso!"),
+      {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      };
   };
 
   useEffect(() => {
     handleCart();
-  }, []);
+  }, [handlePromo]);
 
   return (
     <section className="bg-gray-100 h-full">
@@ -185,68 +264,85 @@ const Checkout = () => {
         </div>
         <div className="p-12">
           <div className="space-y-4">
-            <div className="flex items-center gap-4">
-              <div className="h-[70px] w-[80px] border-gray-300 border-[1px] flex items-center justify-center">
-                <img
-                  src="https://cdn.shopify.com/s/files/1/0087/6193/3920/files/1905064_BLAC_1_64x64.jpg?v=1713556398"
-                  alt="Foto do produto"
-                />
-              </div>
-              <div className="w-full flex justify-between items-center gap-4">
-                <div className="flex justify-between w-full items-center">
-                  <div className="uppercase">
-                    <p className="font-medium">Camiseta básica</p>
-                    <p className="text-gray-400">Tamanho: M</p>
-                  </div>
-                  <div className="justify-end flex">
-                    <div className="flex items-center gap-2 border-[1px] border-gray-300">
-                      <button className="w-[25px] h-[25px] bg-gray-300">
-                        -
-                      </button>
-                      <span className="">1</span>
-                      <button className="w-[25px] h-[25px] bg-gray-300">
-                        +
-                      </button>
+            {products.map((item, idx) => (
+              <div className="flex items-center gap-4" key={idx}>
+                <div className="h-[70px] w-[80px] border-gray-300 border-[1px] flex items-center justify-center">
+                  <img
+                    src={item.product.images[0].url}
+                    alt="Foto do produto"
+                    className="h-[60px]"
+                  />
+                </div>
+                <div className="w-full flex justify-between items-center gap-4">
+                  <div className="flex justify-between w-full items-center">
+                    <div className="uppercase">
+                      <p className="font-medium">{item.product.name}</p>
+                      <p className="text-gray-400">Tamanho: {item.size}</p>
+                    </div>
+                    <div className="justify-end flex">
+                      <div className="flex items-center gap-2 border-[1px] border-gray-300">
+                        <button
+                          onClick={() => removeQuantity(item)}
+                          className="w-[25px] h-[25px] bg-gray-300"
+                        >
+                          -
+                        </button>
+                        <span className="">{item.quantity}</span>
+                        <button
+                          onClick={() => addQuantity(item)}
+                          className="w-[25px] h-[25px] bg-gray-300"
+                        >
+                          +
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div>
-                  <p>R$286,00</p>
+                  <div>
+                    <p>
+                      R$
+                      {(parseFloat(item.product.price) * item.quantity).toFixed(
+                        2
+                      )}
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
+            ))}
             <div className="grid grid-cols-4 gap-4">
               <input
                 className="p-2 rounded-md shadow-sm border-[1px] col-span-3"
                 placeholder="Cupom de desconto"
               />
-              <button className="p-2 rounded-md shadow-sm border-[1px]">
+              <button
+                onClick={() => handlePromo()}
+                className="p-2 rounded-md shadow-sm border-[1px]"
+              >
                 Aplicar
               </button>
             </div>
             <div className="space-y-2 text-gray-900">
               <div className="flex justify-between w-full items-center">
                 <p className="uppercase">Subtotal</p>
-                <p className="font-bold">R$286</p>
+                <p className="font-bold">R${subtotal}</p>
               </div>
               <div className="flex justify-between w-full items-center">
                 <p className="uppercase">Frete</p>
-                <p className="font-bold">+R$10</p>
+                <p className="font-bold">+R${shipping}</p>
               </div>
               <div className="flex justify-between w-full items-center">
                 <p className="uppercase">Desconto</p>
-                <p className="font-bold">-R$0</p>
+                <p className="font-bold">-R${promo}</p>
               </div>
               <div className="flex justify-between w-full items-center text-3xl font-bold">
                 <p className="uppercase">Total</p>
-                <p>R$296</p>
+                <p>R${total}</p>
               </div>
             </div>
           </div>
         </div>
       </div>
+      <ToastContainer />
     </section>
   );
 };
-
 export default Checkout;
