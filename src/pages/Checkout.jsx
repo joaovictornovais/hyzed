@@ -4,6 +4,8 @@ import { Link } from "react-router-dom";
 import Cookies from "js-cookie";
 import { api } from "../services/api";
 import { toast, ToastContainer } from "react-toastify";
+import axios from "axios";
+import { data } from "autoprefixer";
 
 const Checkout = () => {
   const { register, handleSubmit } = useForm();
@@ -12,6 +14,13 @@ const Checkout = () => {
   const [total, setTotal] = useState(0);
   const [shipping, setShipping] = useState(8);
   const [promo, setPromo] = useState(0);
+  const [address, setAddress] = useState({
+    logradouro: "",
+    bairro: "",
+    cidade: "",
+    localidade: "",
+  });
+  const [formattedNumber, setFormattedNumber] = useState("");
 
   const handlePayment = (data) => {
     console.log(data);
@@ -79,6 +88,20 @@ const Checkout = () => {
     Cookies.set("cart", JSON.stringify(cartCookies));
   };
 
+  const handlePhoneChange = (e) => {
+    const input = e.replace(/\D/g, ""); // Remove todos os caracteres que não são dígitos
+    const match = input.match(/^(\d{0,2})(\d{0,5})(\d{0,4})$/); // Captura os grupos de dígitos com quantidades variáveis
+
+    if (match) {
+      const formatted = `(${match[1]}${match[2] ? ") " + match[2] : ""}${
+        match[3] ? "-" + match[3] : ""
+      }`; // Formata o número com base nos grupos capturados
+      setFormattedNumber(formatted);
+    } else {
+      setFormattedNumber(input); // Caso não haja correspondência, mantém o número sem formatação
+    }
+  };
+
   const handlePromo = () => {
     setPromo(subtotal * 0.05);
     toast.success("Cupom de 5% de desconto adicionado com sucesso!"),
@@ -93,6 +116,24 @@ const Checkout = () => {
       };
   };
 
+  const handleAddress = async (cep) => {
+    if (cep.length === 8) {
+      try {
+        await axios.get(`https://viacep.com.br/ws/${cep}/json/`).then((res) => {
+          setAddress(res.data);
+        });
+      } catch (error) {
+        if (cep.length === 9) {
+          await axios
+            .get(`https://viacep.com.br/ws/${cep.replace("-", "")}/json/`)
+            .then((res) => {
+              setAddress(res.data);
+            });
+        }
+      }
+    }
+  };
+
   useEffect(() => {
     handleCart();
   }, [handlePromo]);
@@ -103,32 +144,6 @@ const Checkout = () => {
         <div className="p-12 border-r-[1px] border-gray-400">
           <form onSubmit={handleSubmit(handlePayment)}>
             <div className="space-y-5">
-              <div className="space-y-2">
-                <div className="flex justify-between items-center uppercase">
-                  <span className="font-bold text-gray-800">Contato</span>
-                  <Link className="text-gray-600 underline" to="/login">
-                    Log In
-                  </Link>
-                </div>
-                <div>
-                  <input
-                    {...register("email")}
-                    required
-                    placeholder="E-mail"
-                    className="w-full p-2 rounded-md shadow-sm border-[1px]"
-                  />
-                </div>
-                <div className="flex items-center">
-                  <input
-                    {...register("promotions")}
-                    type="checkbox"
-                    className="h-3 w-3"
-                  />
-                  <label className="ml-2">
-                    Me envie notícias e promoções por e-mail
-                  </label>
-                </div>
-              </div>
               <div className="space-y-2">
                 <div className="flex justify-between items-center uppercase">
                   <span className="font-bold text-gray-800">Entrega</span>
@@ -151,6 +166,7 @@ const Checkout = () => {
                   <input
                     {...register("cep")}
                     required
+                    onChange={(e) => handleAddress(e.target.value)}
                     placeholder="CEP"
                     className="w-full p-2 rounded-md shadow-sm border-[1px]"
                   />
@@ -160,6 +176,7 @@ const Checkout = () => {
                     {...register("address")}
                     required
                     placeholder="Endereço"
+                    value={address.logradouro}
                     className="w-full p-2 rounded-md shadow-sm border-[1px] col-span-2"
                   />
                   <input
@@ -181,12 +198,14 @@ const Checkout = () => {
                     {...register("city")}
                     required
                     placeholder="Cidade"
+                    value={address.bairro}
                     className="w-full p-2 rounded-md shadow-sm border-[1px]"
                   />
                   <input
                     {...register("state")}
                     required
                     placeholder="Estado"
+                    value={address.localidade}
                     className="w-full p-2 rounded-md shadow-sm border-[1px]"
                   />
                 </div>
@@ -195,6 +214,8 @@ const Checkout = () => {
                     {...register("telephone")}
                     required
                     placeholder="Número de Telefone"
+                    onChange={(e) => handlePhoneChange(e.target.value)}
+                    value={formattedNumber}
                     className="w-full p-2 rounded-md shadow-sm border-[1px]"
                   />
                 </div>
