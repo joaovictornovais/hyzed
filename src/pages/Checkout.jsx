@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { Link } from "react-router-dom";
 import Cookies from "js-cookie";
 import { api } from "../services/api";
 import { toast, ToastContainer } from "react-toastify";
 import axios from "axios";
-import { data } from "autoprefixer";
 
 const Checkout = () => {
   const { register, handleSubmit } = useForm();
@@ -14,6 +12,7 @@ const Checkout = () => {
   const [total, setTotal] = useState(0);
   const [shipping, setShipping] = useState(8);
   const [promo, setPromo] = useState(0);
+  const [error, setError] = useState({ error: false, message: "" });
   const [address, setAddress] = useState({
     logradouro: "",
     bairro: "",
@@ -21,9 +20,15 @@ const Checkout = () => {
     localidade: "",
   });
   const [formattedNumber, setFormattedNumber] = useState("");
+  const [formattedExpirationDate, setFormattedExpirationDate] = useState("");
+  const [formattedCC, setCC] = useState("");
 
   const handlePayment = (data) => {
-    console.log(data);
+    if (handleValidateCreditCard(data.cc.replace(/ /g, ""))) {
+      setError({ error: false, message: "" });
+    } else {
+      setError({ error: true, message: "Verifique os dados do cartão" });
+    }
   };
 
   const handleCart = async () => {
@@ -89,17 +94,52 @@ const Checkout = () => {
   };
 
   const handlePhoneChange = (e) => {
-    const input = e.replace(/\D/g, ""); // Remove todos os caracteres que não são dígitos
-    const match = input.match(/^(\d{0,2})(\d{0,5})(\d{0,4})$/); // Captura os grupos de dígitos com quantidades variáveis
+    const input = e.replace(/\D/g, "");
+    const match = input.match(/^(\d{0,2})(\d{0,5})(\d{0,4})$/);
 
     if (match) {
       const formatted = `(${match[1]}${match[2] ? ") " + match[2] : ""}${
         match[3] ? "-" + match[3] : ""
-      }`; // Formata o número com base nos grupos capturados
+      }`;
       setFormattedNumber(formatted);
     } else {
-      setFormattedNumber(input); // Caso não haja correspondência, mantém o número sem formatação
+      setFormattedNumber(input);
     }
+  };
+
+  const handleCC = (e) => {
+    const formattedInput = e
+      .replace(/\D/g, "")
+      .replace(/(\d{4})(\d{0,4})(\d{0,4})(\d{0,4}).*/, "$1 $2 $3 $4");
+
+    setCC(formattedInput);
+  };
+
+  const handleValidateCreditCard = (cardNumber) => {
+    if (!/^\d+$/.test(cardNumber)) return false;
+
+    if (cardNumber.length < 13 || cardNumber.length > 19) return false;
+
+    let sum = 0;
+    for (let i = cardNumber.length - 1; i >= 0; i--) {
+      let digit = parseInt(cardNumber.charAt(i));
+      if ((cardNumber.length - i) % 2 === 0) {
+        digit *= 2;
+        if (digit > 9) digit -= 9;
+      }
+      sum += digit;
+    }
+
+    return sum % 10 === 0;
+  };
+
+  const handleCcExpirationDate = (e) => {
+    const input = e;
+    const formattedInput = input
+      .replace(/\D/g, "")
+      .replace(/^(\d{2})(\d{0,2}).*/, "$1/$2");
+
+    setFormattedExpirationDate(formattedInput);
   };
 
   const handlePromo = () => {
@@ -231,6 +271,8 @@ const Checkout = () => {
                   <input
                     {...register("cc")}
                     required
+                    onChange={(e) => handleCC(e.target.value)}
+                    value={formattedCC}
                     placeholder="Número do cartão de crédito/débito"
                     className="w-full p-2 rounded-md shadow-sm border-[1px]"
                   />
@@ -240,6 +282,8 @@ const Checkout = () => {
                     {...register("expirationDate")}
                     required
                     placeholder="Data de Validade (MM/AA)"
+                    onChange={(e) => handleCcExpirationDate(e.target.value)}
+                    value={formattedExpirationDate}
                     className="w-full p-2 rounded-md shadow-sm border-[1px]"
                   />
                   <input
@@ -257,6 +301,9 @@ const Checkout = () => {
                     className="w-full p-2 rounded-md shadow-sm border-[1px]"
                   />
                 </div>
+              </div>
+              <div className={error.error ? "text-red-600" : "hidden"}>
+                <p>{error.message}</p>
               </div>
               <div className="space-y-2">
                 <p className="uppercase text-gray-800">
