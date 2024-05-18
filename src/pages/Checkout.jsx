@@ -391,19 +391,19 @@ const Checkout = () => {
             <div className="space-y-2 text-gray-900">
               <div className="flex justify-between w-full items-center">
                 <p className="uppercase">Subtotal</p>
-                <p className="font-bold">R${subtotal}</p>
+                <p className="font-bold">R${subtotal.toFixed(2)}</p>
               </div>
               <div className="flex justify-between w-full items-center">
                 <p className="uppercase">Frete</p>
-                <p className="font-bold">+R${shipping}</p>
+                <p className="font-bold">+R${shipping.toFixed(2)}</p>
               </div>
               <div className="flex justify-between w-full items-center">
                 <p className="uppercase">Desconto</p>
-                <p className="font-bold">-R${promo}</p>
+                <p className="font-bold">-R${promo.toFixed(2)}</p>
               </div>
               <div className="flex justify-between w-full items-center text-3xl font-bold">
                 <p className="uppercase">Total</p>
-                <p>R${total}</p>
+                <p>R${total.toFixed(2)}</p>
               </div>
             </div>
           </div>
