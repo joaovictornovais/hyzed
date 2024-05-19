@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
 import Cookies from "js-cookie";
+import axios from "axios";
 import { api } from "../services/api";
 import { toast, ToastContainer } from "react-toastify";
-import axios from "axios";
+import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 
-const Checkout = () => {
+const Checkout = ({ setOrder }) => {
+  const navigate = useNavigate();
   const { register, handleSubmit } = useForm();
   const [products, setProducts] = useState([]);
   const [subtotal, setSubtotal] = useState(null);
@@ -26,9 +28,23 @@ const Checkout = () => {
   const handlePayment = (data) => {
     if (handleValidateCreditCard(data.cc.replace(/ /g, ""))) {
       setError({ error: false, message: "" });
+      createorder();
     } else {
       setError({ error: true, message: "Verifique os dados do cartão" });
     }
+  };
+
+  const createorder = async () => {
+    const productsDTO = JSON.parse(Cookies.get("cart"));
+    await api
+      .post(`/orders`, {
+        products: productsDTO,
+      })
+      .then((res) => {
+        console.log(res.data);
+        Cookies.remove("cart");
+        navigate("/checkout/success");
+      });
   };
 
   const handleCart = async () => {
@@ -174,8 +190,15 @@ const Checkout = () => {
     }
   };
 
+  const handleUserLogin = () => {
+    const token = Cookies.get("hyzedauth.token");
+    if (token === undefined || token === "") navigate("/login");
+  };
+
   useEffect(() => {
+    handleUserLogin();
     handleCart();
+    api.get("/products");
   }, [handlePromo]);
 
   return (
@@ -391,19 +414,19 @@ const Checkout = () => {
             <div className="space-y-2 text-gray-900">
               <div className="flex justify-between w-full items-center">
                 <p className="uppercase">Subtotal</p>
-                <p className="font-bold">R${subtotal.toFixed(2)}</p>
+                <p className="font-bold">R${subtotal}</p>
               </div>
               <div className="flex justify-between w-full items-center">
                 <p className="uppercase">Frete</p>
-                <p className="font-bold">+R${shipping.toFixed(2)}</p>
+                <p className="font-bold">+R${shipping}</p>
               </div>
               <div className="flex justify-between w-full items-center">
                 <p className="uppercase">Desconto</p>
-                <p className="font-bold">-R${promo.toFixed(2)}</p>
+                <p className="font-bold">-R${promo}</p>
               </div>
               <div className="flex justify-between w-full items-center text-3xl font-bold">
                 <p className="uppercase">Total</p>
-                <p>R${total.toFixed(2)}</p>
+                <p>R${total}</p>
               </div>
             </div>
           </div>

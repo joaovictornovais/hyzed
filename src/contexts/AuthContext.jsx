@@ -1,4 +1,4 @@
-import React, { createContext, useState } from "react";
+import React, { createContext, useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 import { api } from "../services/api";
@@ -8,7 +8,8 @@ export const AuthContext = createContext({});
 export function AuthProvider({ children }) {
   const navigate = useNavigate();
   const [name, setName] = useState(null);
-  const isAuthenticated = false;
+
+  const isAuthenticated = !!name;
 
   async function signUp({ nome, sobrenome, email, senha, senhaConfirmada }) {
     if (senha === senhaConfirmada) {
@@ -23,7 +24,7 @@ export function AuthProvider({ children }) {
           console.log(res);
           return res.data;
         });
-      Cookies.set("hyzedauth.token", token);
+      Cookies.set("hyzedauth.token", token, { expires: 1 });
       api.defaults.headers["Authorization"] = `Bearer ${token}`;
       setName(name);
 

@@ -7,10 +7,12 @@ import Home from "./pages/Home";
 import ProductDetails from "./pages/ProductDetails";
 import { api } from "./services/api";
 import Checkout from "./pages/Checkout";
+import Order from "./pages/Order";
 
 const App = () => {
   const [products, setProducts] = useState([]);
   const [cart, setCart] = useState([]);
+  const [order, setOrder] = useState();
 
   const loadProducts = async () => {
     await api.get("/products").then((res) => setProducts(res.data));
@@ -40,9 +42,9 @@ const App = () => {
             />
             <Route
               path="/checkout"
-              element={<Checkout cart={cart} />}
-              cart={cart}
+              element={<Checkout cart={cart} setOrder={setOrder} />}
             />
+            <Route path="/checkout/success" element={<Order order={order} />} />
           </Routes>
         </AuthProvider>
       </BrowserRouter>
