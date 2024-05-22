@@ -25,26 +25,22 @@ const Checkout = ({ setOrder }) => {
   const [formattedExpirationDate, setFormattedExpirationDate] = useState("");
   const [formattedCC, setCC] = useState("");
 
-  const handlePayment = (data) => {
+  const handlePayment = async (data) => {
     if (handleValidateCreditCard(data.cc.replace(/ /g, ""))) {
       setError({ error: false, message: "" });
-      createorder();
+      const productsDTO = JSON.parse(Cookies.get("cart"));
+      await api
+        .post(`/orders`, {
+          products: productsDTO,
+        })
+        .then((res) => {
+          setOrder(res.data);
+          Cookies.remove("cart");
+          navigate("/checkout/success");
+        });
     } else {
       setError({ error: true, message: "Verifique os dados do cartão" });
     }
-  };
-
-  const createorder = async () => {
-    const productsDTO = JSON.parse(Cookies.get("cart"));
-    await api
-      .post(`/orders`, {
-        products: productsDTO,
-      })
-      .then((res) => {
-        console.log(res.data);
-        Cookies.remove("cart");
-        navigate("/checkout/success");
-      });
   };
 
   const handleCart = async () => {
